@@ -1,0 +1,50 @@
+services:
+  app:
+    image: crpi-kyqfans5x5yi0xen.cn-hangzhou.personal.cr.aliyuncs.com/lonng_image/lzc-canda:0.0.1 
+    environment:
+        - UWSGI_INI=uwsgi.ini
+    volumes:
+      - type: bind
+        source: /root/canda/app
+        target: /app
+    depends_on:
+      - redis
+      - mysql
+    expose:
+      - 8000
+
+  nginx:
+    image: registry.lazycat.cloud/longixaoyi/library/nginx:bb9f3408149e0a7a
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - type: bind
+        source: /root/canda/nginx/nginx.conf
+        target: /etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+
+  redis:
+    image: registry.lazycat.cloud/longixaoyi/library/redis:68ceb64b2e3a4b7b
+    container_name: redis
+    volumes:
+      - type: bind
+        source: /root/canda/redis
+        target: /data
+    ports:
+      - "6379:6379"
+
+  mysql:
+    image: registry.lazycat.cloud/longixaoyi/mysql:ca981160441d5495
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: mydb
+    volumes:
+      - type: bind
+        source: /root/canda/mysql
+        target: /var/lib/mysql
+    ports:
+      - "3306:3306"
+
